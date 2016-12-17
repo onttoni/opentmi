@@ -19,11 +19,11 @@ LOCAL_MONGO_PORT="27017" # default mongoDB port
 LOCAL_DB_NAME="opentmi_dev"
 
 # Used if arg = 'remote'
-REMOTE_MONGO_HOST="ds119368.mlab.com"
-REMOTE_MONGO_PORT="19368"
-REMOTE_DB_NAME="heroku_mk02v12k"
-REMOTE_DB_USERNAME="heroku_mk02v12k"
-REMOTE_DB_PASSWORD="i50lrigs2ki7638kjdffnnaid9"
+REMOTE_MONGO_HOST=""
+REMOTE_MONGO_PORT=""
+REMOTE_DB_NAME=""
+REMOTE_DB_USERNAME=""
+REMOTE_DB_PASSWORD=""
 #
 #   DONT TOUCH BELOW UNLESS YOU KNOW WHAT YOU ARE DOING
 #
@@ -33,10 +33,11 @@ function printHelp {
     echo "USAGE: ./dbdump.sh ['local' | 'remote']"
     echo "'local' are 'remote' are aliases for host, port, dbname."
     echo "To change the values for local and remote, edit the variables in the script."
+	echo "successful dumps are stored in /db_backups"
 }
 
 function printDumpInfo {
-    echo "Running mongodump with following settings:"
+    echo "Running mongodump with following settings"
     echo "hostaddress: $MONGO_HOST"
     echo "port: $MONGO_PORT"
     echo "db name: $DB_NAME"
@@ -50,9 +51,9 @@ fi
 # change working dir to location of script
 cd "$(dirname "$0")"
 
-APP_NAME="inventory"
 TIMESTAMP=`date +%Y%m%dT%H%M%S`
-DEST=./${APP_NAME}-dump_${TIMESTAMP}
+# destination dir for dump
+DEST=../db_backup/db-dump_${TIMESTAMP}
 mkdir $DEST
 
 if [ "$1" = "local" ]; then
@@ -60,14 +61,24 @@ if [ "$1" = "local" ]; then
     MONGO_PORT="$LOCAL_MONGO_PORT"
     DB_NAME="$LOCAL_DB_NAME"
     printDumpInfo
-    mongodump -h $MONGO_HOST:$MONGO_PORT -d $DB_NAME -o $DEST
+    if mongodump -h $MONGO_HOST:$MONGO_PORT -d $DB_NAME -o $DEST; then
+        echo "Dump successfull, output in $DEST"
+    else
+        echo "Dump failed..."
+        rm -r $DEST
+    fi
 elif [ "$1" = "remote" ]; then
     MONGO_HOST="$REMOTE_MONGO_HOST"
     MONGO_PORT="$REMOTE_MONGO_PORT"
     DB_NAME="$REMOTE_DB_NAME" 
     printDumpInfo
     echo "db username: $REMOTE_DB_USERNAME"
-    mongodump -h $MONGO_HOST:$MONGO_PORT -d $DB_NAME -u $REMOTE_DB_USERNAME -p $REMOTE_DB_PASSWORD -o $DEST
+    if mongodump -h $MONGO_HOST:$MONGO_PORT -d $DB_NAME -u $REMOTE_DB_USERNAME -p $REMOTE_DB_PASSWORD -o $DEST; then
+        echo "Dump successfull, output in $DEST"
+    else
+        echo "Dump failed..."
+        rm -r $DEST
+    fi
 else
     printHelp
 fi

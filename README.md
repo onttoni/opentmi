@@ -22,7 +22,7 @@ Basic idea is to store **all** meta information related to test execution, like 
 
 ## Prepare
 
-You need to install mongodb and run it. File `mongod.sh` contains simple script to start mongod instance (db location ./db and logs ./db.logs).
+You need to install mongodb and run it. File `mongod.sh` in the /scripts folder contains simple script to start mongod instance (db location ./db and logs ./db.logs).
 
 ## Clone, install dependencies and start
 

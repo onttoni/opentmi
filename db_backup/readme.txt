@@ -1,0 +1,1 @@
+This folder stores database dumps taken with scripts/dbdump.sh
